@@ -13,15 +13,15 @@
 export default {
   name: 'Training',
   props: {
-    header: String
+    header: String,
+    w: {type:Number, required: true},
+    h: {type:Number, required: true}
   },
   mounted() {
     this.tf = window.tf;
   },
   data() {
     return {
-      minWIDTH: 512,
-      minHEIGHT: 512,
       tf: null
     }
   },
@@ -86,7 +86,7 @@ export default {
     preprocessImage: function (img) {
       return this.tf.tidy(() => {
         return this.tf.browser.fromPixels(img)
-        .resizeBilinear([this.minWIDTH, this.minHEIGHT])
+        .resizeBilinear([this.w, this.h])
         .toFloat()
         .div(this.tf.scalar(255));
       });
@@ -94,14 +94,12 @@ export default {
     getCNNModel: function () {            // getCNNModel function
       const model = this.tf.sequential();
 
-      const IMAGE_WIDTH = 512;
-      const IMAGE_HEIGHT = 512;
-      const IMAGE_DEPTH = 3; // RGB
+      const IMAGE_DEPTH = 3; // ie. RGB
 
       const optimizer = this.tf.train.adam();
 
       model.add(this.tf.layers.conv2d({
-        inputShape: [IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_DEPTH],
+        inputShape: [this.w, this.h, IMAGE_DEPTH],
         kernelSize: 5,
         filters: 8,
         strides: 1,
